@@ -97,8 +97,10 @@ namespace RimGPT
 
 	public class TTS
 	{
-		public static string APIURL => $"https://{RimGPTMod.Settings.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices";
+		public static string APIURL => $"http://127.0.0.1:9880/";
+		// public static string APIURL => $"https://{RimGPTMod.Settings.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices";
 
+		
 		public static Voice[] voices = [];
 
 		public static AudioSource audioSource = null;
@@ -165,20 +167,32 @@ namespace RimGPT
 
 		public static async Task<AudioClip> AudioClipFromAzure(Persona persona, string path, string text, Action<string> errorCallback)
 		{
-			var voice = persona.azureVoice;
-			var style = persona.azureVoiceStyle;
-			var styledegree = persona.azureVoiceStyleDegree;
+			// var voice = persona.azureVoice;
+			// var style = persona.azureVoiceStyle;
+			// var styledegree = persona.azureVoiceStyleDegree;
 			var rate = persona.speechRate;
-			var pitch = persona.speechPitch;
-			var xml = await new Ssml().Say(text).WithProsody(rate, pitch).AsVoice(voice, style, styledegree).ToStringAsync();
-			if (Tools.DEBUG)
-				Logger.Warning($"[{voice}] [{style}] [{styledegree}] [{rate}] [{pitch}] => {xml}");
-			using var request = UnityWebRequest.Put(path, Encoding.Default.GetBytes(xml));
-			using var downloadHandlerAudioClip = new DownloadHandlerAudioClip(path, AudioType.MPEG);
-			request.method = "POST";
+			// var pitch = persona.speechPitch;
+			// var xml = await new Ssml().Say(text).WithProsody(rate, pitch).AsVoice(voice, style, styledegree).ToStringAsync();
+			// if (Tools.DEBUG)
+			// 	Logger.Warning($"[{voice}] [{style}] [{styledegree}] [{rate}] [{pitch}] => {xml}");
+			// using var request = UnityWebRequest.Put(path, Encoding.Default.GetBytes(xml));
+
+
+			string jsonData = $"{{\"text\":\"{text}\",\"text_language\":\"zh\"}}";
+			string queryParams = "text_language=zh&text="+text;
+
+			// 创建 UnityWebRequest
+			// using var request = UnityWebRequest.Put(path, jsonData);
+			using var request = UnityWebRequest.Get(path + '?' + queryParams);
+
+
+			using var downloadHandlerAudioClip = new DownloadHandlerAudioClip(path, AudioType.WAV);
+			request.method = "GET";
 			request.SetRequestHeader("Ocp-Apim-Subscription-Key", RimGPTMod.Settings.azureSpeechKey);
-			request.SetRequestHeader("Content-Type", "application/ssml+xml");
-			request.SetRequestHeader("X-Microsoft-OutputFormat", "audio-16khz-64kbitrate-mono-mp3");
+			request.SetRequestHeader("Content-Type", "application/json");
+			// request.SetRequestHeader("X-Microsoft-OutputFormat", "audio-16khz-64kbitrate-mono-mp3");
+			// request.SetRequestHeader("X-Microsoft-OutputFormat", "raw-24khz-16bit-mono-pcm");
+
 			request.downloadHandler = downloadHandlerAudioClip;
 			try
 			{
@@ -205,7 +219,7 @@ namespace RimGPT
 			return await Main.Perform(() =>
 			{
 				var audioClip = downloadHandlerAudioClip.audioClip;
-				// SaveAudioClip.Save("/Users/ap/Desktop/test.wav", audioClip);
+				// SaveAudioClip.Save("/Users/zuojianghua/Desktop/test.wav", audioClip);
 				return audioClip;
 			});
 		}
@@ -265,7 +279,7 @@ namespace RimGPT
 				}
 				if (text != null)
 				{
-					var audioClip = await AudioClipFromAzure(persona, $"{APIURL}/v1", text, e => error = e);
+					var audioClip = await AudioClipFromAzure(persona, $"{APIURL}", text, e => error = e);
 					if (audioClip != null)
 					{
 						var source = GetAudioSource();

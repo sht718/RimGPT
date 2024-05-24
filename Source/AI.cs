@@ -46,31 +46,31 @@ namespace RimGPT
 		//public OpenAIApi OpenAI => new(RimGPTMod.Settings.chatGPTKey);
 		private List<string> history = [];
 
-		public const string defaultPersonality = "You are a commentator watching the player play the popular game, Rimworld.";
+		public const string defaultPersonality = "你是一名正在观看玩家玩流行游戏《Rimworld》的评论员。";
 
 		public string SystemPrompt(Persona currentPersona)
 		{
 			var playerName = Tools.PlayerName();
-			var player = playerName == null ? "the player" : $"the player named '{playerName}'";
+			var player = playerName == null ? "玩家" : $"玩家是'{playerName}'";
 			var otherObservers = RimGPTMod.Settings.personas.Where(p => p != currentPersona).Join(persona => $"'{persona.name}'");
 			var exampleInput = JsonConvert.SerializeObject(new Input
 			{
-				CurrentWindow = "<Info about currently open window>",
-				ActivityFeed = ["Event1", "Event2", "Event3"],
-				PreviousHistoricalKeyEvents = ["OldEvent1", "OldEvent2", "OldEvent3"],
-				LastSpokenText = "<Previous ResponseText, which is the last thing YOU said.>",
-				ColonyRoster = ["Colonist 1", "Colonist 2", "Colonist 3"],
-				ColonySetting = "<A description about the colony and setting>",
-				ResourceData = "<A periodically updated summary of some resources>",
-				RoomsSummary = "<A periodically updated summary, which may never be updated if a setting is disabled by the player, of notable rooms in the colony>",
-				ResearchSummary = "<A periodically updated summary, which may never be updated if a setting is disabled by the player, what's already been researched, what is currently researched, and what is available for research>",
-				EnergySummary = "<A periodically updated summary, which may never be updated if a setting is disabled by the player,A possible report of the colony's power generation and consumption needs>"
+				CurrentWindow = "<当前窗口信息>",
+				ActivityFeed = ["事件1", "事件2", "事件3"],
+				PreviousHistoricalKeyEvents = ["历史事件1", "历史事件2", "历史事件3"],
+				LastSpokenText = "<之前响应的文本, 最近一次你说的话.>",
+				ColonyRoster = ["游戏角色 1", "游戏角色 2", "游戏角色 3"],
+				ColonySetting = "<游戏殖民地的设定和描述>",
+				ResourceData = "<一些资源的定期更新的摘要>",
+				RoomsSummary = "<一份定期更新的摘要，若玩家禁用了一项设置，它可能就永远不会更新，一份关于殖民地房间信息的报告>",
+				ResearchSummary = "<一份定期更新的摘要，若玩家禁用了一项设置，它可能就永远不会更新，内容包括已经研究过的、当前正在研究的以及可供研究的东西>",
+				EnergySummary = "<一份定期更新的摘要，如果玩家禁用了一项设置，它可能就永远不会更新，一份关于殖民地发电和消耗需求的可能报告>"
 
 			}, settings);
 			var exampleOutput = JsonConvert.SerializeObject(new Output
 			{
-				ResponseText = "<New Output>",
-				NewHistoricalKeyEvents = ["OldEventsSummary", "Event 1 and 2", "Event3"]
+				ResponseText = "<最新内容>",
+				NewHistoricalKeyEvents = ["历史事件摘要", "事件1和事件2", "事件3"]
 			}, settings);
 
 
@@ -98,6 +98,7 @@ namespace RimGPT
 						"Items sequence in 'LastSpokenText', 'PreviousHistoricalKeyEvents', and 'ActivityFeed' reflects the event timeline; use it to form coherent responses or interactions.\n",
 						$"Remember: your output MUST be valid JSON and 'NewHistoricalKeyEvents' MUST ONLY contain simple text entries, each encapsulated in quotes as string literals.\n",
 						$"For example, {exampleOutput}. No nested objects, arrays, or non-string data types are allowed within 'NewHistoricalKeyEvents'.\n",
+						"最后，你始终使用中文回答\n",
 				}.Join(delimiter: "");
 		}
 
@@ -223,9 +224,9 @@ namespace RimGPT
 			var systemPrompt = SystemPrompt(persona);
 			if (FrequencyPenalty > 1)
 			{
-				systemPrompt += "\nNOTE: You're being too repetitive, you need to review the data you have and come up with something new.";
-				systemPrompt += $"\nAVOID talking about anything related to this: {persona.lastSpokenText}";
-				history.AddItem("I've been too repetitive lately, I need to examine the data and stray lastSpokenText");
+				systemPrompt += "\n注意：你回答的内容太重复了，你需要根据你所拥有的信息想出新的东西。";
+				systemPrompt += $"\n避免谈论任何与此相关的事情: {persona.lastSpokenText}";
+				history.AddItem("我最近回答的内容太重复了，我需要检查信息并且避免重复上次所说的文本");
 			}
 			if (history.Count() > 5)
 			{
@@ -343,8 +344,8 @@ namespace RimGPT
 				Model = GetCurrentChatGPTModel(),
 				Messages =
 				[
-					new ChatMessage() { Role = "system", Content = $"You are an adversarial system, cleaning up history lists with a goal to remove repetitiveness and keep narration fresh for the following persona: {persona.personality}" },
-					new ChatMessage() { Role = "user", Content =  "Summarize the following events into a succinct sentence, focusing on outliers to reduce latching on to the most pronounced theme: " + String.Join("\n ", history)}
+					new ChatMessage() { Role = "system", Content = $"你是一个对抗系统，清理历史列表，目标是去除重复性并为以下角色保持叙述的新鲜感: {persona.personality}" },
+					new ChatMessage() { Role = "user", Content =  "将以下事件总结成一个简洁的句子，侧重于异常值以减少对最显著主题的执着: " + String.Join("\n ", history)}
 				]
 			};
 
