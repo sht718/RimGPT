@@ -58,18 +58,18 @@ namespace RimGPT
 				CurrentWindow = "<当前窗口信息>",
 				ActivityFeed = ["事件1", "事件2", "事件3"],
 				PreviousHistoricalKeyEvents = ["历史事件1", "历史事件2", "历史事件3"],
-				LastSpokenText = "<之前响应的文本, 最近一次你说的话.>",
-				ColonyRoster = ["游戏角色 1", "游戏角色 2", "游戏角色 3"],
-				ColonySetting = "<游戏殖民地的设定和描述>",
-				ResourceData = "<一些资源的定期更新的摘要>",
-				RoomsSummary = "<一份定期更新的摘要，若玩家禁用了一项设置，它可能就永远不会更新，一份关于殖民地房间信息的报告>",
-				ResearchSummary = "<一份定期更新的摘要，若玩家禁用了一项设置，它可能就永远不会更新，内容包括已经研究过的、当前正在研究的以及可供研究的东西>",
-				EnergySummary = "<一份定期更新的摘要，如果玩家禁用了一项设置，它可能就永远不会更新，一份关于殖民地发电和消耗需求的可能报告>"
+				LastSpokenText = "<之前响应的文本, 最近一次你说的话>",
+				ColonyRoster = ["游戏角色1", "游戏角色2", "游戏角色3"],
+				ColonySetting = "<游戏殖民地的设定和环境描述>",
+				ResourceData = "<一些资源的定期更新报告>",
+				RoomsSummary = "<一份定期更新的殖民地房间信息的报告，若玩家禁用了一项设置，它可能就永远不会更新>",
+				ResearchSummary = "<一份定期更新的研究内容的报告，若玩家禁用了一项设置，它可能就永远不会更新，内容包括已经研究过的、当前正在研究的以及可供研究的东西>",
+				EnergySummary = "<一份定期更新的殖民地发电和消耗需求的报告，如果玩家禁用了一项设置，它可能就永远不会更新>"
 
 			}, settings);
 			var exampleOutput = JsonConvert.SerializeObject(new Output
 			{
-				ResponseText = "<最新内容>",
+				ResponseText = "<最新解说>",
 				NewHistoricalKeyEvents = ["历史事件摘要", "事件1和事件2", "事件3"]
 			}, settings);
 
@@ -78,27 +78,28 @@ namespace RimGPT
 				{
 						$"You are {currentPersona.name}.\n",
 						// Adds weight to using its the personality with its responses: as a chronicler, focusing on balanced storytelling, or as an interactor, focusing on personality-driven improvisation.						
-						currentPersona.isChronicler ? "Unless otherwise specified, balance major events and subtle details, and express them in your unique style."
-																				: "Unless otherwise specified, interact reflecting your unique personality, embracing an improvisational approach based on your background, the current situation, and others' actions",
-						$"Unless otherwise specified, ", otherObservers.Any() ? $"your fellow observers are {otherObservers}. " : "",
-						$"Unless otherwise specified, ",(otherObservers.Any() ? $"you are all watching " : "You are watching") + $"'{player}' play Rimworld.\n",
-						$"Your role/personality: {currentPersona.personality.Replace("PLAYERNAME", player)}\n",
-						$"Your input comes from the current game and will be json like this: {exampleInput}\n",
-						$"Your output must only be in json like this: {exampleOutput}\n",
+						currentPersona.isChronicler ? "除非另有说明, 请平衡重大事件和微妙细节，并以你独特的风格来表达它们。"
+																				: "除非另有说明, 互动时请体现出你独特的个性，采用一种基于你的背景、当前状况以及他人行为的即兴方式。",
+						$"除非另有说明, ", otherObservers.Any() ? $"你的其他观察者同伴们是{otherObservers}. " : "",
+						$"除非另有说明, ",(otherObservers.Any() ? $"你们都在观看" : "你在观看") + $"'{player}'玩Rimworld游戏.\n",
+						$"你的角色/个性是: {currentPersona.personality.Replace("PLAYERNAME", player)}\n",
+						$"你的输入来自当前游戏，并且一定会以这样的JSON格式输入: {exampleInput}\n",
+						$"你的输出必须严格遵守这样的JSON格式: {exampleOutput}\n",
 						$"Limit ResponseText to no more than {currentPersona.phraseMaxWordCount} words.\n",
 						$"Limit NewHistoricalKeyEvents to no more than {currentPersona.historyMaxWordCount} words.\n",
 
 						// Encourages the AI to consider how its responses would sound when spoken, ensuring clarity and accessibility.
-						$"When constructing the 'ResponseText', consider vocal clarity and pacing so that it is easily understandable when spoken by Microsoft Azure Speech Services.\n",
+						// $"When constructing the 'ResponseText', consider vocal clarity and pacing so that it is easily understandable when spoken by Microsoft Azure Speech Services.\n",
+
 						// Prioritizes sources of information.
-						$"Update prioritization: 1. ActivityFeed, 2. Additional Fields (as context).\n",
+						$"更新优先级：1. ActivityFeed，2. 额外的信息（作为简要背景）.\n",
 						// Further reinforces the AI's specific personality by resynthesizing different pieces of information and storing it in its own history
-						$"Combine PreviousHistoricalKeyEvents, and each event from the 'ActivityFeed' and synthesize it into a new, concise form for 'NewHistoricalKeyEvents', make sure that the new synthesis matches your persona.\n",
+						$"结合之前的PreviousHistoricalKeyEvents，以及来自“ActivityFeed”的每个事件，并将其合成为一种新的、简洁的“NewHistoricalKeyEvents”形式，确保新的合成符合你的角色设定。\n",
 						// Guides the AI in understanding the sequence of events, emphasizing the need for coherent and logical responses or interactions.
 						"Items sequence in 'LastSpokenText', 'PreviousHistoricalKeyEvents', and 'ActivityFeed' reflects the event timeline; use it to form coherent responses or interactions.\n",
 						$"Remember: your output MUST be valid JSON and 'NewHistoricalKeyEvents' MUST ONLY contain simple text entries, each encapsulated in quotes as string literals.\n",
 						$"For example, {exampleOutput}. No nested objects, arrays, or non-string data types are allowed within 'NewHistoricalKeyEvents'.\n",
-						"最后，你始终使用中文回答\n",
+						"最后，ResponseText和NewHistoricalKeyEvents的内容始终使用中文来输出。并且ResponseText内容尽量保持简短\n",
 				}.Join(delimiter: "");
 		}
 
@@ -224,9 +225,9 @@ namespace RimGPT
 			var systemPrompt = SystemPrompt(persona);
 			if (FrequencyPenalty > 1)
 			{
-				systemPrompt += "\n注意：你回答的内容太重复了，你需要根据你所拥有的信息想出新的东西。";
-				systemPrompt += $"\n避免谈论任何与此相关的事情: {persona.lastSpokenText}";
-				history.AddItem("我最近回答的内容太重复了，我需要检查信息并且避免重复上次所说的文本");
+				systemPrompt += "\n注意：你回答的内容太重复了，你需要根据你所拥有的信息做出一些新的点评。";
+				systemPrompt += $"\n避免谈论任何以下内容相关的事情: {persona.lastSpokenText}";
+				history.AddItem("我最近回答的内容太重复了，我需要避免重复上次所说的内容");
 			}
 			if (history.Count() > 5)
 			{
