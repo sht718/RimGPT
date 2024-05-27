@@ -178,18 +178,18 @@ namespace RimGPT
 			// using var request = UnityWebRequest.Put(path, Encoding.Default.GetBytes(xml));
 
 
-			string jsonData = $"{{\"text\":\"{text}\",\"degree\":\"{styledegree}\",\"rate\":\"{rate}\",\"pitch\":\"{pitch}\"}}";
+			// string jsonData = $"{{\"text\":\"{text}\",\"degree\":\"{styledegree}\",\"rate\":\"{rate}\",\"pitch\":\"{pitch}\"}}";
 			// string queryParams = "text_language=zh&text="+text;
-
+			string queryParams = $"degree={styledegree}&rate={rate}&pitch={pitch}";
 			// 创建 UnityWebRequest
-			using var request = UnityWebRequest.Put(path, jsonData);
+			// using var request = UnityWebRequest.Put(path, jsonData);
 			// using var request = UnityWebRequest.Get(path + '?' + queryParams);
-
+			using var request = UnityWebRequest.Put(path + '?' + queryParams, text);
 
 			using var downloadHandlerAudioClip = new DownloadHandlerAudioClip(path, AudioType.MPEG);
 			request.method = "POST";
 			request.SetRequestHeader("Ocp-Apim-Subscription-Key", RimGPTMod.Settings.azureSpeechKey);
-			request.SetRequestHeader("Content-Type", "application/json");
+			request.SetRequestHeader("Content-Type", "text/plain");
 			// request.SetRequestHeader("X-Microsoft-OutputFormat", "audio-16khz-64kbitrate-mono-mp3");
 			// request.SetRequestHeader("X-Microsoft-OutputFormat", "raw-24khz-16bit-mono-pcm");
 
