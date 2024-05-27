@@ -219,7 +219,7 @@ namespace RimGPT
 			return await Main.Perform(() =>
 			{
 				var audioClip = downloadHandlerAudioClip.audioClip;
-				SaveAudioClip.Save("/Users/zuojianghua/Desktop/test.wav", audioClip);
+				// SaveAudioClip.Save("/Users/zuojianghua/Desktop/test.wav", audioClip);
 				return audioClip;
 			});
 		}
