@@ -172,6 +172,8 @@ namespace RimGPT
 			var styledegree = persona.azureVoiceStyleDegree;
 			var rate = persona.speechRate;	// 语速
 			var pitch = persona.speechPitch; // 音调
+			var name = persona.name;		// AI评论员名称
+
 			// var xml = await new Ssml().Say(text).WithProsody(rate, pitch).AsVoice(voice, style, styledegree).ToStringAsync();
 			// if (Tools.DEBUG)
 			// 	Logger.Warning($"[{voice}] [{style}] [{styledegree}] [{rate}] [{pitch}] => {xml}");
@@ -180,7 +182,7 @@ namespace RimGPT
 
 			// string jsonData = $"{{\"text\":\"{text}\",\"degree\":\"{styledegree}\",\"rate\":\"{rate}\",\"pitch\":\"{pitch}\"}}";
 			// string queryParams = "text_language=zh&text="+text;
-			string queryParams = $"degree={styledegree}&rate={rate}&pitch={pitch}";
+			string queryParams = $"degree={styledegree}&rate={rate}&pitch={pitch}&name={name}";
 			// 创建 UnityWebRequest
 			// using var request = UnityWebRequest.Put(path, jsonData);
 			// using var request = UnityWebRequest.Get(path + '?' + queryParams);

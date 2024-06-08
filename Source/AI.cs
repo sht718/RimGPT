@@ -345,8 +345,8 @@ namespace RimGPT
 				Model = GetCurrentChatGPTModel(),
 				Messages =
 				[
-					new ChatMessage() { Role = "system", Content = $"你是一个对抗系统，清理历史列表，目标是去除重复性并为以下角色保持叙述的新鲜感: {persona.personality}" },
-					new ChatMessage() { Role = "user", Content =  "将以下事件总结成一个简洁的句子，侧重于异常值以减少对最显著主题的执着: " + String.Join("\n ", history)}
+					new ChatMessage() { Role = "system", Content = $"你是一个对抗系统，清理历史列表，目标是去除重复性内容并为以下角色保持叙述的新鲜感: {persona.personality}" },
+					new ChatMessage() { Role = "user", Content =  "将以下事件总结成一个简洁的句子，侧重于异常状况以减少对最显著主题的执着: " + String.Join("\n ", history)}
 				]
 			};
 
