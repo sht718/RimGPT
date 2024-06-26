@@ -97,7 +97,7 @@ namespace RimGPT
 
 	public class TTS
 	{
-		public static string APIURL => $"http://127.0.0.1:9880/";
+		public static string APIURL => $"http://192.168.2.14:9880/";
 		// public static string APIURL => $"https://{RimGPTMod.Settings.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices";
 
 		
